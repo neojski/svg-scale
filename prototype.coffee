@@ -1,38 +1,43 @@
 class SvgElement
-  constructor: (@element) ->
-    @initializeAttributes()
+  processAttr: (name, value) ->
+    if value?
+      console.log "setting #{name}"
+      this['_' + name] = value
+    else
+      console.log "getting #{name}"
+      this['_' + name]
+  @create: (opt) ->
+    klass = class Element extends SvgElement
+    opt.attrs.forEach (name) ->
+      klass::[name] = (value) ->
+        @processAttr(name, value)
+    klass
 
-  initializeAttributes: ->
-    @attrs.forEach this.initalizeAttribute.bind this
-
-  initalizeAttribute: (name) ->
-    @[name] = ->
-      console.log "this should set #{name}"
-
-class Circle extends SvgElement
+Circle = SvgElement.create(
   attrs: [
     'cx'
     'cy'
     'r'
   ]
-
-element = null;
-circle = new Circle(element);
-
-# or maybe use getter/setter? = easier syntax
-circle.cx('test');
-circle.cy('test');
-circle.r('test');
-
-###
-problems:
-
-Circle gets all those functions generated from attributes during runtime
-which does not make much sense. Probably should do sth like:
-
-Circle = ElementFactory(
-  attrs: ...
 )
 
-which will generate appropriate Circle class
+element = null;
+circle = new Circle(element)
+
+# or maybe use getter/setter? = easier syntax
+circle.cx(1)
+circle.cy(2)
+circle.r(3)
+
+console.log circle.cx()
+console.log circle.cy()
+console.log circle.r()
+
+###
+question:
+
+should the object always depend on the svg element?
+
+I think that's true. Since we always have to know what's the current scale and
+the svg element knows this.
 ###
