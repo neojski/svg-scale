@@ -1,16 +1,22 @@
 class SvgElement
+  getInternal: (name) ->
+    @['_' + name]
   processAttr: (name, value) ->
     if value?
       console.log "setting #{name}"
-      this['_' + name] = value
+      @['_' + name] = 5 * value
     else
       console.log "getting #{name}"
-      this['_' + name]
+      @['_' + name] / 5
   @create: (opt) ->
     klass = class Element extends SvgElement
     opt.attrs.forEach (name) ->
-      klass::[name] = (value) ->
-        @processAttr(name, value)
+      console.log 'define', name
+      Object.defineProperty klass::, name,
+        set: (value) ->
+          @processAttr(name, value)
+        get: ->
+          @processAttr(name)
     klass
 
 Circle = SvgElement.create(
@@ -24,14 +30,10 @@ Circle = SvgElement.create(
 element = null;
 circle = new Circle(element)
 
-# or maybe use getter/setter? = easier syntax
-circle.cx(1)
-circle.cy(2)
-circle.r(3)
+circle.cx = 5
+console.log circle.cx
 
-console.log circle.cx()
-console.log circle.cy()
-console.log circle.r()
+console.log circle.getInternal('cx')
 
 ###
 question:
